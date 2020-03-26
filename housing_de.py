@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 pd.options.display.width = 0
 pd.options.display.max_rows = None
-pd.options.display.precision = 5
+pd.options.display.precision = 1
 
 
 def read_housing():
@@ -24,7 +24,8 @@ def drop_columns():
                     "geo_bln", "yearConstructedRange", "interiorQual", "street", "baseRentRange", "thermalChar", "regio2",
                     "description", "facilities", "energyEfficiencyClass", "electricityBasePrice", "electricityKwhPrice",
                     "telekomUploadSpeed", "noParkSpaces", "garden", "livingSpaceRange", "heatingCosts", "noRoomsRange",
-                    "cellar", "lift"]
+                    "cellar", "lift", "condition", "heatingType", "firingTypes", "geo_krs", "streetPlain", "petsAllowed",
+                    "typeOfFlat", "regio3", "houseNumber", "date"]
     data.drop(less_columns, inplace=True, axis=1)
     data = data[data['totalRent'] < 3000]
     data = data[data['baseRent'] < 3000]
@@ -50,8 +51,8 @@ def data_geo_num():
          'Thüringen': 14, 'Brandenburg': 15}
     }
     data.replace(regio1_to_nums, inplace=True)
-    print("\nData with Lands factorized:\n", data.head())
-    print("\nCheck Values:\n", data['regio1'].unique())
+    # print("\nData with Lands factorized:\n", data.head())
+    # print("\nCheck Values:\n", data['regio1'].unique())
     return data
 
 
@@ -73,7 +74,7 @@ def check_data():
     #                                 (data['geo_plz'] <= 10000)].head())
     # print("\nCheck Values:\n", data[data['geo_plz'].count_values)
     # print("\nChecking how many values in PLZ:\n", data.groupby('geo_plz').size())
-check_data()
+
 
 def data_histogram():
     data = data_geo_num()
@@ -110,15 +111,17 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 def create_test_set():
     data = data_median_rent()
+    data.reset_index(inplace=True)
+    del data['index']
     split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
     for train_index, test_index in split.split(data, data["regio1"]):
         strat_train_set = data.loc[train_index]
         strat_test_set = data.loc[test_index]
         check_test = strat_test_set["regio1"].value_counts() / len(strat_test_set)
-        print(check_test)
-        # print("\nCheck strat train:\n", strat_train_set.info()) # Result NONE, if checking whole dtrat training mostly NANs. WHY???
+        # print(check_test)
+        # print("\nCheck strat train:\n", strat_test_set[:50])
         return strat_train_set, strat_test_set
-create_test_set()
+
 
 def data_labels():
     data, strat_train_set = create_test_set()
@@ -148,8 +151,10 @@ def most_promising_corr_scater():
     plt.show()
 
 
-
-
+# Training and Evaluating on the Training Set
+from sklearn.linear_model import LinearRegression
+lin_reg = LinearRegression()
+lin_reg.fit(housing_prepared, housing_labels)
 
 
 
