@@ -25,9 +25,9 @@ def drop_columns():
                     "description", "facilities", "energyEfficiencyClass", "electricityBasePrice", "electricityKwhPrice",
                     "telekomUploadSpeed", "noParkSpaces", "garden", "livingSpaceRange", "heatingCosts", "noRoomsRange",
                     "cellar", "lift", "condition", "heatingType", "firingTypes", "geo_krs", "streetPlain", "petsAllowed",
-                    "typeOfFlat", "regio3", "houseNumber", "date", "scoutId", "geo_plz", "balcony", "hasKitchen"]
+                    "typeOfFlat", "regio3", "houseNumber", "date", "scoutId", "geo_plz", "balcony", "hasKitchen", "totalRent"]
     data.drop(less_columns, inplace=True, axis=1)
-    data = data[data['totalRent'] < 3000]
+    # data = data[data['totalRent'] < 3000]
     data = data[data['baseRent'] < 3000]
     data = data[data['noRooms'] < 8]
     data = data[data['floor'] <= 20]
@@ -60,7 +60,8 @@ def data_median_rent():
     data_with_median_rent = data_geo_num()
     m = data_with_median_rent.groupby('regio1')['baseRent']
     data_with_median_rent['median_base_rent'] = m.transform(np.median)
-    data_with_median_rent['rooms_per_livingspace'] = data_with_median_rent['noRooms'] / data_with_median_rent['livingSpace']
+    data_with_median_rent['rooms_per_livingspace'] = data_with_median_rent['noRooms'] / data_with_median_rent['livingSpace'] *100
+    data_with_median_rent = data_with_median_rent.replace([np.inf, -np.inf], np.nan).dropna(subset=["rooms_per_livingspace"], how="all")
     # print("\nMedian base rent in Lands:\n", data_with_median_rent.head())
     return data_with_median_rent
 
@@ -125,8 +126,8 @@ def create_test_set():
 
 def data_for_labels():
     data, strat_train_set = create_test_set()
-    data_prepared = strat_train_set.drop("median_base_rent", axis=1)
-    data_labels = strat_train_set["median_base_rent"].copy()
+    data_prepared = strat_train_set.drop("baseRent", axis=1)
+    data_labels = strat_train_set["baseRent"].copy()
     # print("\nData labels info:\n", data_labels)
     return data_prepared, data_labels
 
@@ -165,25 +166,85 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 data_prepared, data_labels = replace_nan_train_set()
-print("\nHow many INF in dataset?\n", data_prepared.isin([np.inf, -np.inf]).sum().sum())
-# num_pipeline = Pipeline([
-#                         # ('imputer', SimpleImputer(strategy="median")),
-#                         # ('attribs_adder', CombinedAttributesAdder()),
-#                         ('std_scaler', StandardScaler())
-#                             ])
-# data_prepared_transformed = num_pipeline.fit_transform(data_prepared)
+# print("\nHow many INF in dataset?\n", data_prepared.isin([np.inf, -np.inf]).sum().sum())
+# print(data_prepared[:50])
+num_pipeline = Pipeline([
+                        # ('imputer', SimpleImputer(strategy="median")),
+                        # ('attribs_adder', CombinedAttributesAdder()),
+                        ('std_scaler', StandardScaler())
+                            ])
+data_prepared_transformed = num_pipeline.fit_transform(data_prepared)
 
 
 # Training and Evaluating on the Training Set
-# from sklearn.linear_model import LinearRegression
-#
-# lin_reg = LinearRegression()
-# lin_reg.fit(data_prepared, data_labels)
-#
-# some_data = data_prepared_transformed.iloc[:5]
-# some_labels = data_labels.iloc[:5]
-# print("\nPredictions:\n", lin_reg.predict(some_data))
-# print("\nLabels:\n", list(some_labels))
+from sklearn.linear_model import LinearRegression
 
+lin_reg = LinearRegression()
+lin_reg.fit(data_prepared_transformed, data_labels)
 
+some_data = data_prepared_transformed[1:5]
+some_labels = data_labels[1:5]
+# print(some_data)
+print("\nThis is the Linear Regression:\n")
+print("\nPredictions:\n", lin_reg.predict(some_data))
+print("\nLabels:\n", list(some_labels))
 
+# Let’s measure this regression model’s RMSE on the whole training
+# set using Scikit-Learn’s mean_squared_error function:
+from sklearn.metrics import mean_squared_error
+
+housing_predictions = lin_reg.predict(data_prepared_transformed)
+lin_mse = mean_squared_error(data_labels, housing_predictions)
+lin_rmse = np.sqrt(lin_mse)
+print("\nRMSE of Linear Regression model:\n", lin_rmse)
+
+# Let’s train a DecisionTreeRegressor. This is a powerful model, capable of finding
+# complex nonlinear relationships in the data
+from sklearn.tree import DecisionTreeRegressor
+
+tree_reg = DecisionTreeRegressor()
+tree_reg.fit(data_prepared_transformed, data_labels)
+housing_predictions = tree_reg.predict(data_prepared_transformed)
+
+tree_mse = mean_squared_error(data_labels, housing_predictions)
+tree_rmse = np.sqrt(tree_mse)
+print("\nThis is the Decission Tree Regressor:\n", tree_rmse)
+
+# Better Evaluation Using Cross-Validation Scikit-Learn’s K-fold cross-validation
+from sklearn.model_selection import cross_val_score
+
+scores = cross_val_score(tree_reg, data_prepared_transformed, data_labels,
+                        scoring="neg_mean_squared_error", cv=10)
+tree_rmse_scores = np.sqrt(-scores)
+
+print("\nScores for the Decision Tree Regression:\n")
+def display_scores(scores):
+    print("\nScores:\n", scores)
+    print("\nMean:\n", scores.mean())
+    print("\nStandard deviation:\n", scores.std())
+
+display_scores(tree_rmse_scores)
+
+# Let’s compute the same scores for the Linear Regression model
+lin_scores = cross_val_score(lin_reg, data_prepared_transformed, data_labels,
+                             scoring="neg_mean_squared_error", cv=10)
+lin_rmse_scores = np.sqrt(-lin_scores)
+print("\nScores for the Linear Regression:\n")
+display_scores(lin_rmse_scores)
+
+# Let’s try one last model now: the RandomForestRegressor.
+from sklearn.ensemble import RandomForestRegressor
+
+forest_reg = RandomForestRegressor(n_estimators=100, random_state=42)
+forest_reg.fit(data_prepared_transformed, data_labels)
+
+housing_predictions = forest_reg.predict(data_prepared_transformed)
+forest_mse = mean_squared_error(data_labels, housing_predictions)
+forest_rmse = np.sqrt(forest_mse)
+print("\nRMSE of this Random Forests:\n", forest_rmse)
+
+forest_scores = cross_val_score(forest_reg, data_prepared_transformed, data_labels,
+                                scoring="neg_mean_squared_error", cv=10)
+forest_rmse_scores = np.sqrt(-forest_scores)
+print("\nScores for the Random Forest Regression:\n")
+display_scores(forest_rmse_scores)
