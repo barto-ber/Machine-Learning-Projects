@@ -208,7 +208,7 @@ housing_predictions = tree_reg.predict(data_prepared_transformed)
 
 tree_mse = mean_squared_error(data_labels, housing_predictions)
 tree_rmse = np.sqrt(tree_mse)
-print("\nThis is the Decission Tree Regressor:\n", tree_rmse)
+print("\nRMSE of the Decission Tree Regressor:\n", tree_rmse)
 
 # Better Evaluation Using Cross-Validation Scikit-Learn’s K-fold cross-validation
 from sklearn.model_selection import cross_val_score
@@ -232,7 +232,7 @@ lin_rmse_scores = np.sqrt(-lin_scores)
 print("\nScores for the Linear Regression:\n")
 display_scores(lin_rmse_scores)
 
-# Let’s try one last model now: the RandomForestRegressor.
+# Let’s try one last model now: the RandomForest Regressor.
 from sklearn.ensemble import RandomForestRegressor
 
 forest_reg = RandomForestRegressor(n_estimators=100, random_state=42)
@@ -248,3 +248,33 @@ forest_scores = cross_val_score(forest_reg, data_prepared_transformed, data_labe
 forest_rmse_scores = np.sqrt(-forest_scores)
 print("\nScores for the Random Forest Regression:\n")
 display_scores(forest_rmse_scores)
+
+
+# Fine-Tune Your Model. Grid Search
+from sklearn.model_selection import GridSearchCV
+param_grid = [
+                {'n_estimators': [3, 10, 30], 'max_features': [2, 4, 6, 8]},
+                {'bootstrap': [False], 'n_estimators': [3, 10], 'max_features': [2, 3, 4]},
+]
+
+forest_reg = RandomForestRegressor()
+
+grid_search = GridSearchCV(forest_reg, param_grid, cv=5,
+                                                scoring='neg_mean_squared_error',
+                                                return_train_score=True)
+grid_search.fit(data_prepared_transformed, data_labels)
+
+cvres = grid_search.cv_results_
+for mean_score, params in zip(cvres["mean_test_score"], cvres["params"]):
+    print("\nEvaluation scores of Grid Search for Random Forests Model:\n", np.sqrt(-mean_score), params)
+
+# Ensemble Methods
+# Analyze the Best Models and Their Errors
+feature_importances = grid_search.best_estimator_.feature_importances_
+print("\nRandomForestsRegressor Indication the relative importance of each attribute:\n", feature_importances)
+attributes = list(data_prepared)
+print("\nRandomForestsRegressor Indication the relative importance of each attribute:\n",
+      sorted(zip(feature_importances, attributes), reverse=True))
+
+
+
