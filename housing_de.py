@@ -125,21 +125,24 @@ def create_test_set():
 
 
 def data_for_labels():
-    data, strat_train_set = create_test_set()
+    strat_train_set , strat_test_set= create_test_set()
     data_prepared = strat_train_set.drop("baseRent", axis=1)
     data_labels = strat_train_set["baseRent"].copy()
+    test_data_prepared = strat_test_set.drop("baseRent", axis=1)
+    test_data_labels = strat_test_set["baseRent"].copy()
     # print("\nData labels info:\n", data_labels)
-    return data_prepared, data_labels
+    return data_prepared, data_labels, test_data_prepared, test_data_labels
 
 
 from sklearn.impute import SimpleImputer
 def replace_nan_train_set():
-    data_prepared, data_labels = data_for_labels()
+    data_prepared, data_labels, test_data_prepared, test_data_labels = data_for_labels()
     # print(data_prepared)
     data_prepared.fillna(data_prepared.median(), inplace=True)
+    test_data_prepared.fillna(test_data_prepared.median(), inplace=True)
     # print("\nHow many NaN in dataset?\n", data_prepared.isnull().sum().sum())
     # print(data_prepared[:50])
-    return data_prepared, data_labels
+    return data_prepared, data_labels, test_data_prepared, test_data_labels
 
 
 def looking_for_correlations():
@@ -165,7 +168,7 @@ def most_promising_corr_scater():
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-data_prepared, data_labels = replace_nan_train_set()
+data_prepared, data_labels, test_data_prepared, test_data_labels = replace_nan_train_set()
 # print("\nHow many INF in dataset?\n", data_prepared.isin([np.inf, -np.inf]).sum().sum())
 # print(data_prepared[:50])
 num_pipeline = Pipeline([
@@ -174,7 +177,7 @@ num_pipeline = Pipeline([
                         ('std_scaler', StandardScaler())
                             ])
 data_prepared_transformed = num_pipeline.fit_transform(data_prepared)
-
+test_data_prepared_trasformed = num_pipeline.transform(test_data_prepared)
 
 # Training and Evaluating on the Training Set
 from sklearn.linear_model import LinearRegression
@@ -276,5 +279,21 @@ attributes = list(data_prepared)
 print("\nRandomForestsRegressor Indication the relative importance of each attribute:\n",
       sorted(zip(feature_importances, attributes), reverse=True))
 
+# Evaluate Your System on the Test Set
+final_model = grid_search.best_estimator_
+final_predictions = final_model.predict(test_data_prepared_trasformed)
+final_mse = mean_squared_error(test_data_labels, final_predictions)
+final_rmse = np.sqrt(final_mse)
+print("\nFinal model - Final MSE:\n", final_mse)
+print("\nFinal model - Final RMSE:\n", final_rmse)
 
-
+# You might want to have an idea of how precise this estimate is.
+# For this, you can compute a 95% confidence interval for the generalization error using
+# scipy.stats.t.interval():
+from scipy import stats
+confidence = 0.95
+squared_errors = (final_predictions - test_data_labels) ** 2
+final_confidence = np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1,
+                                            loc=squared_errors.mean(),
+                                            scale=stats.sem(squared_errors)))
+print("\n95% confidence interval for the generalization error:\n", final_confidence)
