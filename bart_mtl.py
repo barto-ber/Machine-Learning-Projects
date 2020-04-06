@@ -316,8 +316,73 @@ def multiple_complic_example():
     y_hist.invert_xaxis()
     plt.show()
 
+# Text and Annotation
+# Transforms and Text Position
+
+# Here let’s look at an example of drawing text at various locations using these transforms
+def dif_locations():
+    fig, ax = plt.subplots(facecolor='lightgray')
+    ax.axis([0, 10, 0, 10])
+    # transform=ax.transData is the default, but we'll specify it anyway
+    ax.text(1, 5, ". Data: (1, 5)", transform=ax.transData)
+    ax.text(0.5, 0.1, ". Axes: (0.5, 0.1)", transform=ax.transAxes)
+    ax.text(0.2, 0.2, ". Figure: (0.2, 0.2)", transform=fig.transFigure)
+    plt.show()
+
+# Arrows and Annotation
+# Drawing arrows in Matplotlib is often much harder than you might hope. While
+# there is a plt.arrow() function available, I wouldn’t suggest using it; the arrows it
+# creates are SVG objects that will be subject to the varying aspect ratio of your plots,
+# and the result is rarely what the user intended. Instead, I’d suggest using the plt.anno
+# tate() function.
+def arrows_annot():
+    fig, ax = plt.subplots()
+    x = np.linspace(0, 20, 1000)
+    ax.plot(x, np.cos(x))
+    ax.axis('equal')
+    ax.annotate('local maximum', xy=(6.28, 1), xytext=(10, 4),
+                arrowprops=dict(facecolor='black', shrink=0.05))
+    ax.annotate('local minimum', xy=(5 * np.pi, -1), xytext=(2, -6),
+                arrowprops=dict(arrowstyle="->",
+                                connectionstyle="angle3,angleA=0,angleB=-90"));
+    plt.show()
 
 
+# Customizing Ticks
+# Hiding Ticks or Labels
+def hide_ticks():
+    ax = plt.axes()
+    ax.plot(np.random.rand(50))
+    ax.yaxis.set_major_locator(plt.NullLocator())
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    plt.show()
+
+# plt.MaxNLocator(), which allows us to specify the
+# maximum number of ticks that will be displayed.
+def ticks_num():
+    fig, ax = plt.subplots(4, 4, sharex=True, sharey=True)
+    # For every axis, set the x and y major locator
+    for axi in ax.flat:
+        axi.xaxis.set_major_locator(plt.MaxNLocator(3))
+    axi.yaxis.set_major_locator(plt.MaxNLocator(3))
+    plt.show()
+
+# Fancy Tick Formats
+def fancy_ticks():
+    # Plot a sine and cosine curve
+    fig, ax = plt.subplots()
+    x = np.linspace(0, 3 * np.pi, 1000)
+    ax.plot(x, np.sin(x), lw=3, label='Sine')
+    ax.plot(x, np.cos(x), lw=3, label='Cosine')
+    # Set up grid, legend, and limits
+    ax.grid(True)
+    ax.legend(frameon=False)
+    ax.axis('equal')
+    ax.set_xlim(0, 3 * np.pi)
+    # we’ll add both major and minor ticks in multiples of π/4
+    ax.xaxis.set_major_locator(plt.MultipleLocator(np.pi / 2))
+    ax.xaxis.set_minor_locator(plt.MultipleLocator(np.pi / 4))
+    plt.show()
 
 
 
