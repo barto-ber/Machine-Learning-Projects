@@ -29,9 +29,9 @@ corr_matrix = train_set.corr()
 show_correlations = corr_matrix["G3"].sort_values(ascending=False)
 # print("\nCorrelations between every pair of attributes:\n", show_correlations)
 
-attributes = ["studytime", "Father edu", "G3"]
-scatter_matrix(train_set[attributes])
-plt.show()
+# attributes = ["studytime", "Father edu", "G3"]
+# scatter_matrix(train_set[attributes])
+# plt.show()
 
 X_train = train_set.drop("G3", axis=1)
 y_train = train_set["G3"].copy()
@@ -151,6 +151,29 @@ feature_importances = grid_search.best_estimator_.feature_importances_
 attributes = ["sex", "address", "famsize", "Pstatus", "Mother edu", "Father edu", "studytime", "failures", "schoolsup",
              "paid", "higher", "absences", "G1", "G2"]
 print(sorted(zip(feature_importances, attributes), reverse=True))
+
+
+
+final_model = grid_search.best_estimator_
+
+X_test = test_set.drop("G3", axis=1)
+y_test = test_set["G3"].copy()
+
+X_test_prepared = full_pipeline.transform(X_test)
+final_predictions = final_model.predict(X_test_prepared)
+final_mse = mean_squared_error(y_test, final_predictions)
+final_rmse = np.sqrt(final_mse)
+print("\nFINAL RMSE for test data:\n", final_rmse)
+
+
+from scipy import stats
+confidence = 0.95
+squared_errors = (final_predictions - y_test) ** 2
+get_interval = np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1,
+                         loc=squared_errors.mean(),
+                         scale=stats.sem(squared_errors)))
+print("A 95% confidence interval:\n", get_interval)
+
 
 # Drawing and plotting model
 # plot = "failures"
