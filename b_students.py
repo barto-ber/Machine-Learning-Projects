@@ -1,9 +1,18 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn import linear_model
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+from scipy import stats
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 pd.options.display.width = 0
@@ -23,6 +32,7 @@ data = data[["sex", "address", "famsize", "Pstatus", "Mother edu", "Father edu",
 # print(data.info())
 # print("\nHow many NaN in dataset?\n", data.isnull().sum().sum())
 
+# SPLIT DATA
 train_set, test_set = train_test_split(data, test_size=0.15, random_state=42)
 
 corr_matrix = train_set.corr()
@@ -36,16 +46,8 @@ show_correlations = corr_matrix["G3"].sort_values(ascending=False)
 X_train = train_set.drop("G3", axis=1)
 y_train = train_set["G3"].copy()
 
-# predict = "G3"
 
-# X = np.array(data.drop([predict], axis=1))
-# y = np.array(data[predict])
-#
-# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42)
-
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-
+# NUM PIPELINE
 X_train_num = X_train.drop(["sex", "address", "famsize", "Pstatus", "schoolsup",
                             "paid", "higher"], axis=1)
 num_pipeline = Pipeline([
@@ -56,9 +58,8 @@ num_pipeline = Pipeline([
 X_train_num_scaled = num_pipeline.fit_transform(X_train_num)
 
 
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder
 
+# FULL PIPELINE
 num_attribs = list(X_train_num)
 cat_attribs = ["sex", "address", "famsize", "Pstatus", "schoolsup", "paid", "higher"]
 full_pipeline = ColumnTransformer([
@@ -75,13 +76,13 @@ lin_regr.fit(X_train_prepared, y_train)
 acc_train = lin_regr.score(X_train_prepared, y_train)
 print("\nScore for linear regression training set:\n", acc_train)
 
-from sklearn.metrics import mean_squared_error
+# MEAN SQUARED ERROR
 student_predictions = lin_regr.predict(X_train_prepared)
 lin_mse = mean_squared_error(y_train, student_predictions)
 lin_rmse = np.sqrt(lin_mse)
 print("\nRMSE for linear regression:\n", lin_rmse)
 
-from sklearn.model_selection import cross_val_score
+# CROSS VALIDATION SCORE
 scores = cross_val_score(lin_regr, X_train_prepared, y_train,
                          scoring="neg_mean_squared_error", cv=10)
 lin_rmse_scores = np.sqrt(-scores)
@@ -95,7 +96,7 @@ def display_scores(scores):
 display_scores(lin_rmse_scores)
 
 
-from sklearn.tree import DecisionTreeRegressor
+# TREE REGRESSOR
 tree_regr = DecisionTreeRegressor()
 tree_regr.fit(X_train_prepared, y_train)
 
@@ -115,7 +116,7 @@ print("\nCross validation for tree regression:\n")
 display_scores(tree_rmse_scores)
 
 
-from sklearn.ensemble import RandomForestRegressor
+# RANDOM FORESTS
 forest_regr = RandomForestRegressor()
 forest_regr.fit(X_train_prepared, y_train)
 
@@ -135,7 +136,7 @@ print("\nCross validation for forest regression:\n")
 display_scores(forest_rmse_scores)
 
 
-from sklearn.model_selection import GridSearchCV
+# MODEL SELECTION GRID SEARCH CV
 param_grid = [
                 {'n_estimators': [3, 10, 30], 'max_features': [2, 4, 6, 8]},
                 {'bootstrap': [False], 'n_estimators': [3, 10], 'max_features': [2, 3, 4]},
@@ -166,7 +167,7 @@ final_rmse = np.sqrt(final_mse)
 print("\nFINAL RMSE for test data:\n", final_rmse)
 
 
-from scipy import stats
+# 95% CONFIDENCE INTERVAL
 confidence = 0.95
 squared_errors = (final_predictions - y_test) ** 2
 get_interval = np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1,
