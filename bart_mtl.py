@@ -11,6 +11,7 @@ def general():
     fig = plt.figure()
     plt.plot(x, np.sin(x), '-')
     plt.plot(x, np.cos(x), '--');
+    plt.show()
     return x
 
 def matlab_style():
@@ -25,7 +26,7 @@ def matlab_style():
     plt.plot(x, np.cos(x));
 
 def object_oriented():
-    x = general()
+    x = np.linspace(0, 10, 100)
     # Object-oriented interface
     # First create a grid of plots
     # ax will be an array of two Axes objects
