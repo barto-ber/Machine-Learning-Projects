@@ -30,6 +30,6 @@ pd.options.display.max_rows = None
 data = dd.read_csv('2018_Yellow_Taxi_Trip_Data.csv')
 # data = data[["sex", "address", "famsize", "Pstatus", "Mother edu", "Father edu", "studytime", "failures", "schoolsup",
 #              "paid", "higher", "absences", "G1", "G2", "G3"]]
-print(data.head())
-print(data.info())
-# print("\nHow many NaN in dataset?\n", data.isnull().sum().sum())
+# print(data.head())
+# print(data.info())
+print("\nHow many NaN in dataset?\n", data.isnull().sum().sum())
