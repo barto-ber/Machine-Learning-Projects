@@ -1,5 +1,6 @@
 import pandas as pd
 import dask.dataframe as dd
+from dask.diagnostics import ProgressBar
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -30,6 +31,16 @@ pd.options.display.max_rows = None
 data = dd.read_csv('2018_Yellow_Taxi_Trip_Data.csv')
 # data = data[["sex", "address", "famsize", "Pstatus", "Mother edu", "Father edu", "studytime", "failures", "schoolsup",
 #              "paid", "higher", "absences", "G1", "G2", "G3"]]
-# print(data.head())
+print(data.head())
 # print(data.info())
-print("\nHow many NaN in dataset?\n", data.isnull().sum().sum())
+
+'''CHECK FOR NaNs (generally and in detail)'''
+with ProgressBar():
+    missing_values_all = data.isnull().sum().sum().compute()
+print("\nHow many NaNs in dataset?\n", missing_values_all)
+
+missing_values = data.isnull().sum()
+missing_count = (missing_values / data.index.size * 100)
+with ProgressBar():
+    missing_count_pct = missing_count.compute()
+print("\nWhere are the NaNs:\n", missing_count_pct)
