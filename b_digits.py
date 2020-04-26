@@ -2,9 +2,11 @@ import numpy as np
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.cluster import KMeans
+from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import DBSCAN
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
@@ -32,7 +34,7 @@ pipeline = Pipeline([
                     ])
 pipeline.fit(X_train_scaled, y_train)
 pipl_score = pipeline.score(X_test_scaled, y_test)
-print("Pipeline with kmeans + log reg:\n", pipl_score)
+print("Pipeline with kmeans + log reg on TEST:\n", pipl_score)
 
 # param_grid = dict(kmeans__n_clusters=range(2, 100))
 # grid_clf = GridSearchCV(pipeline, param_grid, cv=3, verbose=2)
@@ -78,17 +80,34 @@ the image closest to the centroid. We will call these images the representative 
 '''Lets try DBSCAN'''
 dbscan = DBSCAN(eps=5, n_jobs=-1)
 dbscan.fit(X_train_scaled)
-print(dbscan.labels_[:100])
-print(len(dbscan.core_sample_indices_))
+# print(dbscan.labels_[:100])
+print("DBSCAN on TRAIN how many indices:\n", len( dbscan.core_sample_indices_))
 
 
 knn = KNeighborsClassifier(n_neighbors=40)
 knn.fit(dbscan.components_, dbscan.labels_[dbscan.core_sample_indices_])
 
 knn_score = knn.score(X_train_scaled, y_train)
-print("Score for dbscan + knn:\n", knn_score)
+print("Score for dbscan + knn on TRAIN:\n", knn_score)
 
+'''Lets try PCA principal component analysis'''
+knn_2 = KNeighborsClassifier()
+knn_2.fit(X_train_scaled, y_train)
 
+knn_score_2 = knn_2.score(X_test_scaled, y_test)
+print("Score for knn on TEST:\n", knn_score_2)
+
+'''Mix PCA with knn'''
+pca = PCA(n_components=20, whiten=True, random_state=0)
+pca.fit(X_train)
+X_train_pca = pca.transform(X_train)
+X_test_pca = pca.transform(X_test)
+
+knn_pca = KNeighborsClassifier(n_neighbors=1)
+knn_pca.fit(X_train_pca, y_train)
+
+knn_score_pca = knn_pca.score(X_test_pca, y_test)
+print("Score for pca + knn on TEST:\n", knn_score_pca)
 
 
 
