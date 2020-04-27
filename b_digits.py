@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import SGDClassifier
 from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
@@ -13,6 +14,9 @@ from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 
 X_digits, y_digits = load_digits(return_X_y=True)
+
+# print("The shape of X:\n", X_digits.shape)
+# print("Keys of data:\n", X_digits[0])
 
 X_train, X_test, y_train, y_test = train_test_split(X_digits, y_digits)
 
@@ -108,6 +112,7 @@ knn_pca.fit(X_train_pca, y_train)
 
 knn_score_pca = knn_pca.score(X_test_pca, y_test)
 print("Score for pca + knn on TEST:\n", knn_score_pca)
+
 
 
 
