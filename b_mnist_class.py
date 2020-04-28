@@ -5,6 +5,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import SGDClassifier
+from sklearn.neighbors import  KNeighborsClassifier
 from sklearn.cluster import KMeans
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import cross_val_predict
@@ -12,6 +13,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score, recall_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import  roc_auc_score
 import matplotlib.pyplot as plt
 pd.options.display.width = 0
 pd.options.display.max_rows = None
@@ -108,7 +110,7 @@ test_labels_one_hot[test_labels_one_hot==1] = 0.99
 # pipl_score = pipeline.score(test_imgs, test_labels_one_hot)
 # print("Score for Pipeline:\n", pipl_score)
 
-'''Lets check a binary classifier SGD'''
+'''Lets check a binary classifier SGD as a binary classifier for some_digit'''
 some_digit = train_imgs[0] # some digit is 5
 
 # some_digit_image = some_digit.reshape(28, 28)
@@ -128,30 +130,96 @@ sgd_5.fit(train_imgs, y_train_5)
 sgd_5_predict = sgd_5.predict(([some_digit]))
 print("\nIs some_digit 5?:\n", sgd_5_predict)
 
-acc_sgd = cross_val_score(sgd_5, train_imgs, y_train_5, cv=3, scoring="accuracy")
-print("Cross Val Score for SGD is:\n", acc_sgd)
+'''Cross validation, confusion matrix, precision-recall, f1...'''
+# acc_sgd = cross_val_score(sgd_5, train_imgs, y_train_5, cv=3, scoring="accuracy")
+# print("Cross Val Score for SGD is:\n", acc_sgd)
+#
+# y_train_pred = cross_val_predict(sgd_5, train_imgs, y_train_5, cv=3)
+#
+# conf_matr_sgd = confusion_matrix(y_train_5, y_train_pred)
+# print("Confusion matrix for sgd:\n", conf_matr_sgd)
+#
+# prec_score_sgd = precision_score(y_train_5, y_train_pred)
+# print("Precision score for sgd (how often is the result correct):\n", prec_score_sgd)
+# rec_score_sgd = recall_score(y_train_5, y_train_pred)
+# print("Recall score for sgd (how many some_digit is detected):\n", rec_score_sgd)
+#
+# f1_sc_sgd = f1_score(y_train_5, y_train_pred)
+# print("F1 score for sgd (harmonic mean of precision and recall):\n", f1_sc_sgd)
+#
+# y_5_scores = cross_val_predict(sgd_5, train_imgs, y_train_5.ravel(), cv=3, method='decision_function')
+#
+# precisions, recalls, thresholds = precision_recall_curve(y_train_5, y_5_scores)
 
-y_train_pred = cross_val_predict(sgd_5, train_imgs, y_train_5, cv=3)
+# def plot_precision_recall_vs_threshold(precisions, recalls, thresholds):
+#     def plot_precision_recall_vs_threshold(precisions, recalls, thresholds):
+#         plt.plot(thresholds, precisions[:-1], "b--", label="Precision", linewidth=2)
+#         plt.plot(thresholds, recalls[:-1], "g-", label="Recall", linewidth=2)
+#         plt.legend(loc="center right", fontsize=16)  # Not shown in the book
+#         plt.xlabel("Threshold", fontsize=16)  # Not shown
+#         plt.grid(True)  # Not shown
+#         plt.axis([-50000, 50000, 0, 1])  # Not shown
+#
+# recall_90_precision = recalls[np.argmax(precisions >= 0.90)]
+# threshold_90_precision = thresholds[np.argmax(precisions >= 0.90)]
+#
+# plt.figure(figsize=(8, 4))  # Not shown
+# plot_precision_recall_vs_threshold(precisions, recalls, thresholds)
+# plt.plot([threshold_90_precision, threshold_90_precision], [0., 0.9], "r:")  # Not shown
+# plt.plot([-50000, threshold_90_precision], [0.9, 0.9], "r:")  # Not shown
+# plt.plot([-50000, threshold_90_precision], [recall_90_precision, recall_90_precision], "r:")  # Not shown
+# plt.plot([threshold_90_precision], [0.9], "ro")  # Not shown
+# plt.plot([threshold_90_precision], [recall_90_precision], "ro")  # Not shown
+# plt.show()
 
-conf_matr_sgd = confusion_matrix(y_train_5, y_train_pred)
-print("Confusion matrix for sgd:\n", conf_matr_sgd)
 
-prec_score_sgd = precision_score(y_train_5, y_train_pred)
-print("Precision score for sgd (how often is the result correct):\n", prec_score_sgd)
-rec_score_sgd = recall_score(y_train_5, y_train_pred)
-print("Recall score for sgd (how many some_digits it detects):\n", rec_score_sgd)
+# def plot_precision_vs_recall(precisions, recalls):
+#     plt.plot(recalls, precisions, "b-", linewidth=2)
+#     plt.xlabel("Recall", fontsize=16)
+#     plt.ylabel("Precision", fontsize=16)
+#     plt.axis([0, 1, 0, 1])
+#     plt.grid(True)
+#
+# plt.figure(figsize=(8, 6))
+# plot_precision_vs_recall(precisions, recalls)
+# plt.plot([0.4368, 0.4368], [0., 0.9], "r:")
+# plt.plot([0.0, 0.4368], [0.9, 0.9], "r:")
+# plt.plot([0.4368], [0.9], "ro")
+# plt.show()
 
-f1_sc_sgd = f1_score(y_train_5, y_train_pred)
-print("F1 score for sgd (harmonic mean of precision and recall:\n", f1_sc_sgd)
+'''Threshold'''
+# threshold_90_precision = thresholds[np.argmax(precisions >= 0.90)]
+# y_train_pred_90 = (y_5_scores >= threshold_90_precision)
+#
+# prec_score_90 = precision_score(y_train_5, y_train_pred_90)
+# print("Precision score for sgd precision wanted >=90%:\n", prec_score_90)
+# rec_score_90 = recall_score(y_train_5, y_train_pred_90)
+# print("Recall score for sgd with precision >=90%:\n", rec_score_90)
+#
+# roc_sgd_5 = roc_auc_score(y_train_5, y_5_scores)
+# print("ROC AUC for sgd:\n", roc_sgd_5)
 
-y_5_scores = cross_val_predict(sgd_5, train_imgs, y_train_5, cv=3, method='decision_function')
 
-precisions, recalls, thresholds = precision_recall_curve(y_train_5, y_5_scores)
+'''Lets try multiclass classification'''
+'''1. SGD for a multiclass classification task (not for only labels for some_digit
+but for all 0 to 9 digits from the data set)'''
+sgd_multi = SGDClassifier(random_state=42)
+sgd_multi.fit(train_imgs, train_labels)
+sgd_multi_predict = sgd_multi.predict([some_digit])
+print("SGD multiclass prediction for is some_digit the number 5?:\n", sgd_multi_predict)
 
-def plot_precision_recall_vs_threshold(precisions, recalls, thresholds):
-    plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
-    plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
+'''Lets check how KNeighbors Classifier is doing with multilabel classification'''
+train_labels_large = (train_labels >= 7)
+train_labels_odd = (train_labels % 2 == 1)
+y_multilabel = np.c_[train_labels_large, train_labels_odd]
+knn_clf = KNeighborsClassifier()
+knn_clf.fit(train_imgs, y_multilabel)
+knn_multi_predict = knn_clf.predict([some_digit])
+print("KNN multilabel - is some_digit large and/or odd number?:\n", knn_multi_predict)
 
-plot_precision_recall_vs_threshold(precisions, recalls, thresholds)
-plt.show()
+
+
+
+
+
 
