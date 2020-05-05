@@ -20,7 +20,8 @@ from pandas.plotting import scatter_matrix
 pd.options.display.width = 0
 pd.options.display.max_rows = None
 
-data = dd.read_csv('2018_Yellow_Taxi_Trip_Data.csv')
+print("--- Reading data ---\n")
+data = pd.read_csv('yellow_tripdata_2019-01.csv')
 
 data = data[['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'trip_distance', 'RatecodeID', 'PULocationID', 'DOLocationID',
              'payment_type', 'fare_amount']]
@@ -45,6 +46,7 @@ data = data[['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'trip_distance', '
 # print("So many rows in dataset:\n", rows_sum)
 
 '''Throwing out unknown zones 264 & 265 and zone 1 (Newark Airport)'''
+print("--- Throwing out bad data points ---\n")
 data = data[data['PULocationID'] != 1]
 data = data[data['DOLocationID'] != 1]
 data = data[data['PULocationID'] < 264]
@@ -55,8 +57,9 @@ data = data[data['trip_distance'] > 0]
 data['trip_distance'] = (data['trip_distance'] * 1.609344).round(decimals=2) # getting KM
 
 '''Converting to datetime'''
-data['tpep_pickup_datetime'] = dd.to_datetime(data['tpep_pickup_datetime'])
-data['tpep_dropoff_datetime'] = dd.to_datetime(data['tpep_dropoff_datetime'])
+print("--- Converting to datetime ---\n")
+data['tpep_pickup_datetime'] = pd.to_datetime(data['tpep_pickup_datetime'])
+data['tpep_dropoff_datetime'] = pd.to_datetime(data['tpep_dropoff_datetime'])
 data['trip_time'] = data['tpep_dropoff_datetime'] - data['tpep_pickup_datetime']
 
 print(data.head())
@@ -82,19 +85,32 @@ print(data.head())
 #     rows_sum = data.index.size.compute()
 # print("So many rows in dataset:\n", rows_sum)
 
-'''Converting datetime to timestamp'''
-data['tpep_pickup_datetime'] = (data['tpep_pickup_datetime'] - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
-data['tpep_dropoff_datetime'] = (data['tpep_dropoff_datetime'] - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
-data['trip_time_nix'] = data['tpep_dropoff_datetime'] - data['tpep_pickup_datetime']
-print(data.head())
+'''Converting datetime to unix'''
+print("--- Converting datetime to unix time ---\n")
+data_unix = data.copy()
+data_unix['tpep_pickup_datetime'] = (data_unix['tpep_pickup_datetime'] - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
+data_unix['tpep_dropoff_datetime'] = (data_unix['tpep_dropoff_datetime'] - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
+
+print("--- Adding additional attribute combinations ---\n")
+data_unix['trip_time_nix'] = data_unix['tpep_dropoff_datetime'] - data_unix['tpep_pickup_datetime']
+# data['time/distance'] = (data['trip_time_nix'] / data['trip_distance']).round(decimals=2) # lin correlations close zero
+# data['distance/time'] = (data['trip_distance'] / data['trip_time_nix']).round(decimals=5) # lin correlations close zero
+print(data_unix.head())
 
 '''Creating train and test set'''
-train_set, test_set = train_test_split(data, test_size=0.3, random_state=42)
+print("--- Creating train and test set ---\n")
+train_set, test_set = train_test_split(data_unix, test_size=0.3, random_state=42)
 
 '''Looking for correlations'''
+print("--- Checking for linear pearsons correlations ---\n")
 corr_matrix = train_set.corr()
 check_fare_amount = corr_matrix['fare_amount'].sort_values(ascending=False)
 print("\nCheck fare amount correlations:\n", check_fare_amount)
+
+
+'''Algorithms'''
+
+
 
 
 
