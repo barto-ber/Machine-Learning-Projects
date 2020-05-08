@@ -8,6 +8,9 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler, OneHotEncoder,Po
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from scipy import stats
 import matplotlib.pyplot as plt
 pd.options.display.width = 0
 pd.options.display.max_rows = None
@@ -99,19 +102,21 @@ data_unix.drop(irrelevant_features, inplace=True, axis=1)
 '''Last check for infinity and NaN and setting inf as Na'''
 # missing_values_all = data_unix.isnull().sum().sum()
 # print("\nHow many NaNs in dataset?\n", missing_values_all)
-#
+
 # missing_values = data_unix.isnull().sum()
 # missing_count = (missing_values / data_unix.index.size * 100)
 # print("\nWhere are the NaNs:\n", missing_count)
 
 pd.set_option('use_inf_as_na', True)
 data_unix = data_unix.replace([np.inf, -np.inf], 0).dropna(subset=data_unix.columns, how="all")
-
+data_unix.dropna()
 # print("Pandas check if all elements are finite?:\n", data_unix.notnull().values.all())
 # print("Numpy check if all elements are finite?:\n", np.isfinite(data_unix).sum())
 #
 # print("Pandas check if any element is Na (not available)?:\n", data_unix.isnull().values.all())
 # print("Numpy check if any element is Na (not available)?:\n", np.isnan(data_unix).all())
+
+# print("Are there any NaN???:\n", data_unix.isna().sum())
 
 '''Split data'''
 print("--- Splitting data ---\n")
@@ -129,21 +134,20 @@ numerical_X_train = X_train.drop(['PULocationID', 'DOLocationID'], axis=1)
 num_attribs_X_train = list(numerical_X_train)
 cat_attribs_X_train = ['PULocationID', 'DOLocationID']
 
-# numerical_X_test = X_test.drop(['PULocationID', 'DOLocationID'], axis=1)
-# num_attribs_X_test = list(numerical_X_train)
-# cat_attribs_X_test = ['PULocationID', 'DOLocationID']
+numerical_X_test = X_test.drop(['PULocationID', 'DOLocationID'], axis=1)
+cat_attribs_X_test = ['PULocationID', 'DOLocationID']
 
 scale_transform = ColumnTransformer([
                             ('scaler', StandardScaler(), num_attribs_X_train),
-                            ('cat', OneHotEncoder(), cat_attribs_X_train)
+                            ('cat', OneHotEncoder(handle_unknown='ignore'), cat_attribs_X_train)
                         ])
 
 X_train_prepared = scale_transform.fit_transform(X_train)
-# X_test_prepared = scale_transform.fit_transform(X_test)
+X_test_prepared = scale_transform.transform(X_test)
 
 '''Linear regression'''
-# print("--- Calculating Linear Regression ---\n")
-# lin_reg = LinearRegression()
+print("--- Calculating Linear Regression ---\n")
+lin_reg = LinearRegression()
 #
 # print("\n\tCross validation with RMSE for Linear Regression:")
 # lin_reg_scores_nMSE = cross_val_score(lin_reg, X_train_prepared, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
@@ -164,80 +168,117 @@ X_train_prepared = scale_transform.fit_transform(X_train)
 # print("\nMean score R^2:\n", lin_reg_scores_r2.mean())
 # print("\nStandard deviation:\n", lin_reg_scores_r2.std())
 
-# lin_reg.fit(X_train_prepared, y_train)
-# predictions = lin_reg.predict(X_test_prepared)
+lin_reg.fit(X_train_prepared, y_train)
+predictions = lin_reg.predict(X_test_prepared)
+
+score_r2_lin_reg = r2_score(y_test, predictions)
+print("\nR^2 of Linear Regression model:\n", score_r2_lin_reg)
+
+lin_reg_mse = mean_squared_error(y_test, predictions)
+lin_reg_rmse = np.sqrt(lin_reg_mse)
+print("\nMSE of Linear Regression model:\n", lin_reg_mse)
+print("\nRMSE of Linear Regression model:\n", lin_reg_rmse)
+
+lin_reg_mae = mean_absolute_error(y_test, predictions)
+print("\nMAE of Linear Regression model:\n", lin_reg_mse)
+
+lin_reg_confidence = 0.95
+lin_reg_squared_errors = (predictions - y_test) ** 2
+interv_95 = np.sqrt(stats.t.interval(lin_reg_confidence, len(lin_reg_squared_errors) - 1,
+                         loc=lin_reg_squared_errors.mean(),
+                         scale=stats.sem(lin_reg_squared_errors)))
+print("\n95% confidence interval of Linear Regression model:\n", interv_95)
 
 '''Plot outputs Linear Regression'''
-# plt.scatter(X_test_prepared, y_test,  color='black', alpha=0.1)
-# plt.plot(X_test_prepared, predictions, color='blue', linewidth=3)
-# plt.xticks(())
-# plt.yticks(())
-# plt.show()
-
-'''Polynomial regression'''
-print("--- Calculating Polynomial Regression ---\n")
-pipe_poly_reg = make_pipeline(
-    PolynomialFeatures(),
-    LinearRegression()
-)
-
-param_grid_poly_reg = {'polynomialfeatures__degree': [1, 2, 3]}
-
-grid_poly_reg = GridSearchCV(pipe_poly_reg, param_grid=param_grid_poly_reg, cv=5, n_jobs=-1)
-grid_poly_reg.fit(X_train_prepared, y_train)
-
-print("Best parameters for Polynomial Regression:\n", grid_poly_reg.best_params_)
-print("Best cross-validation score for Polynomial Regression:\n", grid_poly_reg.best_score_)
-
-'''Polynomial Ridge Regression'''
-print("--- Calculating Polynomial Ridge Regression ---\n")
-pipe_poly_ridge = make_pipeline(
-    PolynomialFeatures(),
-    Ridge()
-)
-
-param_grid_poly_ridge = {'polynomialfeatures__degree': [1, 2, 3, 4, 5],
-                         'ridge__alpha': [0.001, 0.01, 0.1, 1, 10, 100]}
-
-grid_poly_ridge = GridSearchCV(pipe_poly_ridge, param_grid=param_grid_poly_ridge, cv=5, n_jobs=-1)
-grid_poly_ridge.fit(X_train_prepared, y_train)
-
-print("Best parameters for Polynomial Ridge Regression:\n", grid_poly_ridge.best_params_)
-print("Best cross-validation score for Polynomial Ridge Regression:\n", grid_poly_ridge.best_score_)
-
-plt.matshow(grid_poly_ridge.cv_results_['mean_test_score'].reshape(3, -1), vmin=0, cmap="viridis")
-plt.xlabel("ridge__alpha")
-plt.ylabel("polynomialfeatures__degree")
-plt.xticks(range(len(param_grid_poly_ridge['ridge__alpha'])), param_grid_poly_ridge['ridge__alpha'])
-plt.yticks(range(len(param_grid_poly_ridge['polynomialfeatures__degree'])), param_grid_poly_ridge['polynomialfeatures__degree'])
-plt.colorbar()
-
-'''Random Forest'''
-print("--- Calculating Random Forest ---")
-forest = RandomForestRegressor(n_jobs=-1, random_state=42)
-
-print("\n\tCross validation with RMSE for Random Forest:")
-forest_scores_nMSE = cross_val_score(forest, X_train, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
-forest_rmse_scores = np.sqrt(-forest_scores_nMSE)
-print("\nScores RMSE:\n", forest_rmse_scores)
-print("\nMean score RMSE:\n", forest_rmse_scores.mean())
-print("\nStandard deviation:\n", forest_rmse_scores.std())
-
-print("\n\tCross validation with MAE for Random Forest:")
-forest_scores_MAE = cross_val_score(forest, X_train, y_train, scoring="neg_mean_absolute_error", cv=10, n_jobs=-1)
-print("\nScores MAE:\n", forest_scores_MAE)
-print("\nMean score MAE:\n", forest_scores_MAE.mean())
-print("\nStandard deviation:\n", forest_scores_MAE.std())
-
-print("\n\tCross validation with R^2 for Random Forest:")
-forest_scores_r2 = cross_val_score(forest, X_train, y_train, scoring="r2", cv=10, n_jobs=-1)
-print("\nScores R^2:\n", forest_scores_r2)
-print("\nMean score R^2:\n", forest_scores_r2.mean())
-print("\nStandard deviation:\n", forest_scores_r2.std())
-
-
+plt.scatter(X_test_prepared, y_test,  color='black', alpha=0.1)
+plt.plot(X_test_prepared, predictions, color='blue', linewidth=3)
+plt.xticks(())
+plt.yticks(())
 plt.show()
 
+'''Polynomial regression'''
+# print("--- Calculating Polynomial Regression ---\n")
+# pipe_poly_reg = make_pipeline(
+#     PolynomialFeatures(),
+#     LinearRegression()
+# )
+#
+# param_grid_poly_reg = {'polynomialfeatures__degree': [1, 2, 3]}
+#
+# grid_poly_reg = GridSearchCV(pipe_poly_reg, param_grid=param_grid_poly_reg, cv=5, n_jobs=-1)
+# grid_poly_reg.fit(X_train_prepared, y_train)
+#
+# print("Best parameters for Polynomial Regression:\n", grid_poly_reg.best_params_)
+# print("Best cross-validation score for Polynomial Regression:\n", grid_poly_reg.best_score_)
+
+'''Polynomial Ridge Regression'''
+# print("--- Calculating Polynomial Ridge Regression ---\n")
+# pipe_poly_ridge = make_pipeline(
+#     PolynomialFeatures(),
+#     Ridge()
+# )
+#
+# param_grid_poly_ridge = {'polynomialfeatures__degree': [1, 2, 3],
+#                          'ridge__alpha': [0.001, 0.01, 0.1, 1, 10, 100]}
+#
+# grid_poly_ridge = GridSearchCV(pipe_poly_ridge, param_grid=param_grid_poly_ridge, cv=5, n_jobs=-1)
+# grid_poly_ridge.fit(X_train_prepared, y_train)
+#
+# print("Best parameters for Polynomial Ridge Regression:\n", grid_poly_ridge.best_params_)
+# print("Best cross-validation score for Polynomial Ridge Regression:\n", grid_poly_ridge.best_score_)
+#
+# plt.matshow(grid_poly_ridge.cv_results_['mean_test_score'].reshape(3, -1), vmin=0, cmap="viridis")
+# plt.xlabel("ridge__alpha")
+# plt.ylabel("polynomialfeatures__degree")
+# plt.xticks(range(len(param_grid_poly_ridge['ridge__alpha'])), param_grid_poly_ridge['ridge__alpha'])
+# plt.yticks(range(len(param_grid_poly_ridge['polynomialfeatures__degree'])), param_grid_poly_ridge['polynomialfeatures__degree'])
+# plt.colorbar()
+
+'''Random Forest'''
+# print("--- Calculating Random Forest ---")
+# forest = RandomForestRegressor(n_jobs=-1, random_state=42)
+#
+# print("\n\tCross validation with RMSE for Random Forest:")
+# forest_scores_nMSE = cross_val_score(forest, X_train, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
+# forest_rmse_scores = np.sqrt(-forest_scores_nMSE)
+# print("\nScores RMSE:\n", forest_rmse_scores)
+# print("\nMean score RMSE:\n", forest_rmse_scores.mean())
+# print("\nStandard deviation:\n", forest_rmse_scores.std())
+#
+# print("\n\tCross validation with MAE for Random Forest:")
+# forest_scores_MAE = cross_val_score(forest, X_train, y_train, scoring="neg_mean_absolute_error", cv=10, n_jobs=-1)
+# print("\nScores MAE:\n", forest_scores_MAE)
+# print("\nMean score MAE:\n", forest_scores_MAE.mean())
+# print("\nStandard deviation:\n", forest_scores_MAE.std())
+#
+# print("\n\tCross validation with R^2 for Random Forest:")
+# forest_scores_r2 = cross_val_score(forest, X_train, y_train, scoring="r2", cv=10, n_jobs=-1)
+# print("\nScores R^2:\n", forest_scores_r2)
+# print("\nMean score R^2:\n", forest_scores_r2.mean())
+# print("\nStandard deviation:\n", forest_scores_r2.std())
+
+'''XGBOOST'''
+# print("--- Calculating XGB Reg ---")
+# xgb_reg = XGBRegressor()
+#
+# print("\n\tCross validation with RMSE for XGB:")
+# xgb_scores_nMSE = cross_val_score(xgb_reg, X_train, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
+# xgb_rmse_scores = np.sqrt(-xgb_scores_nMSE)
+# print("\nScores RMSE:\n", xgb_rmse_scores)
+# print("\nMean score RMSE:\n", xgb_rmse_scores.mean())
+# print("\nStandard deviation:\n", xgb_rmse_scores.std())
+#
+# print("\n\tCross validation with MAE for XGB:")
+# xgb_scores_MAE = cross_val_score(xgb_reg, X_train, y_train, scoring="neg_mean_absolute_error", cv=10, n_jobs=-1)
+# print("\nScores MAE:\n", xgb_scores_MAE)
+# print("\nMean score MAE:\n", xgb_scores_MAE.mean())
+# print("\nStandard deviation:\n", xgb_scores_MAE.std())
+#
+# print("\n\tCross validation with R^2 for Random Forest:")
+# xgb_scores_r2 = cross_val_score(xgb_reg, X_train, y_train, scoring="r2", cv=10, n_jobs=-1)
+# print("\nScores R^2:\n", xgb_scores_r2)
+# print("\nMean score R^2:\n", xgb_scores_r2.mean())
+# print("\nStandard deviation:\n", xgb_scores_r2.std())
 
 
 
