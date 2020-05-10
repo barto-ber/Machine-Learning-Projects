@@ -1,3 +1,4 @@
+from datetime import datetime
 import pandas as pd
 import dask.dataframe as dd
 from dask.diagnostics import ProgressBar
@@ -16,9 +17,11 @@ pd.options.display.width = 0
 pd.options.display.max_rows = None
 pd.options.display.float_format = "{:.2f}".format
 
+time_now = datetime.now()
+
 '''Reading data from CSV'''
-print("--- Reading data ---\n")
-data = pd.read_csv('yellow_tripdata_2019-01.csv')
+print(time_now, "--- Reading data ---\n")
+data = pd.read_csv('D:\Coding_data\yellow_tripdata_2019-01.csv')
 
 data = data[['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'trip_distance', 'RatecodeID', 'PULocationID', 'DOLocationID',
              'payment_type', 'fare_amount']]
@@ -146,8 +149,8 @@ X_train_prepared = scale_transform.fit_transform(X_train)
 X_test_prepared = scale_transform.transform(X_test)
 
 '''Linear regression'''
-print("--- Calculating Linear Regression ---\n")
-lin_reg = LinearRegression()
+# print("--- Calculating Linear Regression ---\n")
+# lin_reg = LinearRegression()
 #
 # print("\n\tCross validation with RMSE for Linear Regression:")
 # lin_reg_scores_nMSE = cross_val_score(lin_reg, X_train_prepared, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
@@ -168,41 +171,41 @@ lin_reg = LinearRegression()
 # print("\nMean score R^2:\n", lin_reg_scores_r2.mean())
 # print("\nStandard deviation:\n", lin_reg_scores_r2.std())
 
-lin_reg.fit(X_train_prepared, y_train)
-predictions = lin_reg.predict(X_test_prepared)
+# lin_reg.fit(X_train_prepared, y_train)
+# predictions = lin_reg.predict(X_test_prepared)
+#
+# score_r2_lin_reg = r2_score(y_test, predictions)
+# print("\nR^2 of Linear Regression model:\n", score_r2_lin_reg)
+#
+# lin_reg_mse = mean_squared_error(y_test, predictions)
+# lin_reg_rmse = np.sqrt(lin_reg_mse)
+# print("\nMSE of Linear Regression model:\n", lin_reg_mse)
+# print("\nRMSE of Linear Regression model:\n", lin_reg_rmse)
+#
+# lin_reg_mae = mean_absolute_error(y_test, predictions)
+# print("\nMAE of Linear Regression model:\n", lin_reg_mae)
+#
+# lin_reg_confidence = 0.95
+# lin_reg_squared_errors = (predictions - y_test) ** 2
+# interv_95 = np.sqrt(stats.t.interval(lin_reg_confidence, len(lin_reg_squared_errors) - 1,
+#                          loc=lin_reg_squared_errors.mean(),
+#                          scale=stats.sem(lin_reg_squared_errors)))
+# print("\n95% confidence interval for the generalization error of Linear Regression model:\n", interv_95)
 
-score_r2_lin_reg = r2_score(y_test, predictions)
-print("\nR^2 of Linear Regression model:\n", score_r2_lin_reg)
-
-lin_reg_mse = mean_squared_error(y_test, predictions)
-lin_reg_rmse = np.sqrt(lin_reg_mse)
-print("\nMSE of Linear Regression model:\n", lin_reg_mse)
-print("\nRMSE of Linear Regression model:\n", lin_reg_rmse)
-
-lin_reg_mae = mean_absolute_error(y_test, predictions)
-print("\nMAE of Linear Regression model:\n", lin_reg_mse)
-
-lin_reg_confidence = 0.95
-lin_reg_squared_errors = (predictions - y_test) ** 2
-interv_95 = np.sqrt(stats.t.interval(lin_reg_confidence, len(lin_reg_squared_errors) - 1,
-                         loc=lin_reg_squared_errors.mean(),
-                         scale=stats.sem(lin_reg_squared_errors)))
-print("\n95% confidence interval of Linear Regression model:\n", interv_95)
-
-'''Plot outputs Linear Regression'''
-plt.scatter(X_test_prepared, y_test,  color='black', alpha=0.1)
-plt.plot(X_test_prepared, predictions, color='blue', linewidth=3)
-plt.xticks(())
-plt.yticks(())
-plt.show()
+'''Plot outputs Linear Regression - doesnt work!!!'''
+# plt.scatter(X_test_prepared[2], y_test,  color='black', alpha=0.1)
+# plt.plot(X_test_prepared[2], predictions, color='blue', linewidth=3)
+# plt.xticks(())
+# plt.yticks(())
+# plt.show()
 
 '''Polynomial regression'''
 # print("--- Calculating Polynomial Regression ---\n")
 # pipe_poly_reg = make_pipeline(
-#     PolynomialFeatures(),
+#     PolynomialFeatures(degree=2, include_bias=False),
 #     LinearRegression()
 # )
-#
+
 # param_grid_poly_reg = {'polynomialfeatures__degree': [1, 2, 3]}
 #
 # grid_poly_reg = GridSearchCV(pipe_poly_reg, param_grid=param_grid_poly_reg, cv=5, n_jobs=-1)
@@ -211,13 +214,34 @@ plt.show()
 # print("Best parameters for Polynomial Regression:\n", grid_poly_reg.best_params_)
 # print("Best cross-validation score for Polynomial Regression:\n", grid_poly_reg.best_score_)
 
+# pipe_poly_reg.fit(X_train_prepared, y_train)
+# predictions = pipe_poly_reg.predict(X_test_prepared)
+#
+# score_r2_poly_reg = r2_score(y_test, predictions)
+# print("\nR^2 of Polynomial Regression model:\n", score_r2_poly_reg)
+#
+# poly_reg_mse = mean_squared_error(y_test, predictions)
+# poly_reg_rmse = np.sqrt(poly_reg_mse)
+# print("\nMSE of Polynomial Regression model:\n", poly_reg_mse)
+# print("\nRMSE of Polynomial Regression model:\n", poly_reg_rmse)
+#
+# poly_reg_mae = mean_absolute_error(y_test, predictions)
+# print("\nMAE of Polynomial Regression model:\n", poly_reg_mae)
+#
+# poly_reg_confidence = 0.95
+# poly_reg_squared_errors = (predictions - y_test) ** 2
+# interv_95 = np.sqrt(stats.t.interval(poly_reg_confidence, len(poly_reg_squared_errors) - 1,
+#                          loc=poly_reg_squared_errors.mean(),
+#                          scale=stats.sem(poly_reg_squared_errors)))
+# print("\n95% confidence interval for the generalization error of Polynomial Regression model:\n", interv_95)
+
 '''Polynomial Ridge Regression'''
 # print("--- Calculating Polynomial Ridge Regression ---\n")
 # pipe_poly_ridge = make_pipeline(
-#     PolynomialFeatures(),
+#     PolynomialFeatures(degree=2, include_bias=False),
 #     Ridge()
 # )
-#
+
 # param_grid_poly_ridge = {'polynomialfeatures__degree': [1, 2, 3],
 #                          'ridge__alpha': [0.001, 0.01, 0.1, 1, 10, 100]}
 #
@@ -234,10 +258,31 @@ plt.show()
 # plt.yticks(range(len(param_grid_poly_ridge['polynomialfeatures__degree'])), param_grid_poly_ridge['polynomialfeatures__degree'])
 # plt.colorbar()
 
+# pipe_poly_ridge.fit(X_train_prepared, y_train)
+# predictions = pipe_poly_ridge.predict(X_test_prepared)
+#
+# score_r2_poly_ridge = r2_score(y_test, predictions)
+# print("\nR^2 of Polynomial Ridge Regression model:\n", score_r2_poly_ridge)
+#
+# poly_ridge_mse = mean_squared_error(y_test, predictions)
+# poly_ridge_rmse = np.sqrt(poly_ridge_mse)
+# print("\nMSE of Polynomial Ridge Regression model:\n", poly_ridge_mse)
+# print("\nRMSE of Polynomial Ridge Regression model:\n", poly_ridge_rmse)
+#
+# poly_ridge_mae = mean_absolute_error(y_test, predictions)
+# print("\nMAE of Polynomial Ridge Regression model:\n", poly_ridge_mae)
+#
+# poly_ridge_confidence = 0.95
+# poly_ridge_squared_errors = (predictions - y_test) ** 2
+# interv_95 = np.sqrt(stats.t.interval(poly_ridge_confidence, len(poly_ridge_squared_errors) - 1,
+#                          loc=poly_ridge_squared_errors.mean(),
+#                          scale=stats.sem(poly_ridge_squared_errors)))
+# print("\n95% confidence interval for the generalization error of Polynomial Ridge Regression model:\n", interv_95)
+
 '''Random Forest'''
 # print("--- Calculating Random Forest ---")
 # forest = RandomForestRegressor(n_jobs=-1, random_state=42)
-#
+
 # print("\n\tCross validation with RMSE for Random Forest:")
 # forest_scores_nMSE = cross_val_score(forest, X_train, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
 # forest_rmse_scores = np.sqrt(-forest_scores_nMSE)
@@ -257,10 +302,31 @@ plt.show()
 # print("\nMean score R^2:\n", forest_scores_r2.mean())
 # print("\nStandard deviation:\n", forest_scores_r2.std())
 
-'''XGBOOST'''
-# print("--- Calculating XGB Reg ---")
-# xgb_reg = XGBRegressor()
+# forest.fit(X_train, y_train)
+# predictions = forest.predict(X_test)
 #
+# score_r2_forest = r2_score(y_test, predictions)
+# print("\nR^2 of Random Forest model:\n", score_r2_forest)
+#
+# forest_mse = mean_squared_error(y_test, predictions)
+# forest_rmse = np.sqrt(forest_mse)
+# print("\nMSE of Random Forest model:\n", forest_mse)
+# print("\nRMSE of Random Forest model:\n", forest_rmse)
+#
+# forest_mae = mean_absolute_error(y_test, predictions)
+# print("\nMAE of Random Forest model:\n", forest_mae)
+#
+# forest_confidence = 0.95
+# forest_squared_errors = (predictions - y_test) ** 2
+# interv_95 = np.sqrt(stats.t.interval(forest_confidence, len(forest_squared_errors) - 1,
+#                          loc=forest_squared_errors.mean(),
+#                          scale=stats.sem(forest_squared_errors)))
+# print("\n95% confidence interval for the generalization error of Random Forest model:\n", interv_95)
+
+'''XGBOOST'''
+print("--- Calculating XGB Reg ---")
+xgb_reg = XGBRegressor()
+
 # print("\n\tCross validation with RMSE for XGB:")
 # xgb_scores_nMSE = cross_val_score(xgb_reg, X_train, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
 # xgb_rmse_scores = np.sqrt(-xgb_scores_nMSE)
@@ -280,5 +346,24 @@ plt.show()
 # print("\nMean score R^2:\n", xgb_scores_r2.mean())
 # print("\nStandard deviation:\n", xgb_scores_r2.std())
 
+xgb_reg.fit(X_train, y_train)
+predictions = xgb_reg.predict(X_test)
 
+score_r2_xgb = r2_score(y_test, predictions)
+print("\nR^2 of XGB model:\n", score_r2_xgb)
+
+xgb_mse = mean_squared_error(y_test, predictions)
+xgb_rmse = np.sqrt(xgb_mse)
+print("\nMSE of XGB model:\n", xgb_mse)
+print("\nRMSE of XGB model:\n", xgb_rmse)
+
+xgb_mae = mean_absolute_error(y_test, predictions)
+print("\nMAE of XGB model:\n", xgb_mae)
+
+xgb_confidence = 0.95
+xgb_squared_errors = (predictions - y_test) ** 2
+interv_95 = np.sqrt(stats.t.interval(xgb_confidence, len(xgb_squared_errors) - 1,
+                         loc=xgb_squared_errors.mean(),
+                         scale=stats.sem(xgb_squared_errors)))
+print("\n95% confidence interval for the generalization error of XGB model:\n", interv_95)
 
