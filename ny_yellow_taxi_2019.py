@@ -20,7 +20,7 @@ pd.options.display.float_format = "{:.2f}".format
 time_now = datetime.now()
 
 '''Reading data from CSV'''
-print(time_now, "--- Reading data ---\n")
+print(time_now, "\n--- Reading data ---\n")
 data = pd.read_csv('D:\Coding_data\yellow_tripdata_2019-01.csv')
 
 data = data[['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'trip_distance', 'RatecodeID', 'PULocationID', 'DOLocationID',
@@ -151,7 +151,7 @@ X_test_prepared = scale_transform.transform(X_test)
 '''Linear regression'''
 # print("--- Calculating Linear Regression ---\n")
 # lin_reg = LinearRegression()
-#
+
 # print("\n\tCross validation with RMSE for Linear Regression:")
 # lin_reg_scores_nMSE = cross_val_score(lin_reg, X_train_prepared, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
 # lin_reg_rmse_scores = np.sqrt(-lin_reg_scores_nMSE)
@@ -280,8 +280,8 @@ X_test_prepared = scale_transform.transform(X_test)
 # print("\n95% confidence interval for the generalization error of Polynomial Ridge Regression model:\n", interv_95)
 
 '''Random Forest'''
-# print("--- Calculating Random Forest ---")
-# forest = RandomForestRegressor(n_jobs=-1, random_state=42)
+print("--- Calculating Random Forest ---")
+forest = RandomForestRegressor(n_jobs=-1, random_state=42)
 
 # print("\n\tCross validation with RMSE for Random Forest:")
 # forest_scores_nMSE = cross_val_score(forest, X_train, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
@@ -302,9 +302,17 @@ X_test_prepared = scale_transform.transform(X_test)
 # print("\nMean score R^2:\n", forest_scores_r2.mean())
 # print("\nStandard deviation:\n", forest_scores_r2.std())
 
-# forest.fit(X_train, y_train)
+forest.fit(X_train, y_train)
 # predictions = forest.predict(X_test)
-#
+
+some_X_train = X_train.iloc[:5]
+some_y_train = y_train.iloc[:5]
+# some_X_train_prepared = scale_transform.transform((some_X_train))
+print("\nSome train predictions:\n", forest.predict(some_X_train))
+print("\nSome y_train:\n", list(some_y_train))
+
+
+
 # score_r2_forest = r2_score(y_test, predictions)
 # print("\nR^2 of Random Forest model:\n", score_r2_forest)
 #
@@ -324,8 +332,8 @@ X_test_prepared = scale_transform.transform(X_test)
 # print("\n95% confidence interval for the generalization error of Random Forest model:\n", interv_95)
 
 '''XGBOOST'''
-print("--- Calculating XGB Reg ---")
-xgb_reg = XGBRegressor()
+# print("--- Calculating XGB Reg ---")
+# xgb_reg = XGBRegressor()
 
 # print("\n\tCross validation with RMSE for XGB:")
 # xgb_scores_nMSE = cross_val_score(xgb_reg, X_train, y_train, scoring="neg_mean_squared_error", cv=10, n_jobs=-1)
@@ -346,24 +354,24 @@ xgb_reg = XGBRegressor()
 # print("\nMean score R^2:\n", xgb_scores_r2.mean())
 # print("\nStandard deviation:\n", xgb_scores_r2.std())
 
-xgb_reg.fit(X_train, y_train)
-predictions = xgb_reg.predict(X_test)
-
-score_r2_xgb = r2_score(y_test, predictions)
-print("\nR^2 of XGB model:\n", score_r2_xgb)
-
-xgb_mse = mean_squared_error(y_test, predictions)
-xgb_rmse = np.sqrt(xgb_mse)
-print("\nMSE of XGB model:\n", xgb_mse)
-print("\nRMSE of XGB model:\n", xgb_rmse)
-
-xgb_mae = mean_absolute_error(y_test, predictions)
-print("\nMAE of XGB model:\n", xgb_mae)
-
-xgb_confidence = 0.95
-xgb_squared_errors = (predictions - y_test) ** 2
-interv_95 = np.sqrt(stats.t.interval(xgb_confidence, len(xgb_squared_errors) - 1,
-                         loc=xgb_squared_errors.mean(),
-                         scale=stats.sem(xgb_squared_errors)))
-print("\n95% confidence interval for the generalization error of XGB model:\n", interv_95)
+# xgb_reg.fit(X_train, y_train)
+# predictions = xgb_reg.predict(X_test)
+#
+# score_r2_xgb = r2_score(y_test, predictions)
+# print("\nR^2 of XGB model:\n", score_r2_xgb)
+#
+# xgb_mse = mean_squared_error(y_test, predictions)
+# xgb_rmse = np.sqrt(xgb_mse)
+# print("\nMSE of XGB model:\n", xgb_mse)
+# print("\nRMSE of XGB model:\n", xgb_rmse)
+#
+# xgb_mae = mean_absolute_error(y_test, predictions)
+# print("\nMAE of XGB model:\n", xgb_mae)
+#
+# xgb_confidence = 0.95
+# xgb_squared_errors = (predictions - y_test) ** 2
+# interv_95 = np.sqrt(stats.t.interval(xgb_confidence, len(xgb_squared_errors) - 1,
+#                          loc=xgb_squared_errors.mean(),
+#                          scale=stats.sem(xgb_squared_errors)))
+# print("\n95% confidence interval for the generalization error of XGB model:\n", interv_95)
 
