@@ -2,6 +2,7 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import re
+from sklearn.dummy import DummyClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict, GridSearchCV
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline, make_pipeline
@@ -11,7 +12,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import spacy
 import nltk
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix, plot_confusion_matrix
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix, \
+    precision_recall_curve, roc_curve, precision_score, recall_score, \
+    classification_report, roc_auc_score
 import textwrap
 import matplotlib.pyplot as plt
 pd.options.display.width = 0
@@ -195,7 +198,7 @@ Confusion matrix:
 '''
 
 
-'''Search grid COuntVectorizer plus Log reg'''
+'''Search grid CountVectorizer plus Log reg'''
 # print("\n--- Computing Search grid COuntVectorizer plus Log reg ---\n")
 # pipe = Pipeline([('vect', CountVectorizer()),
 #                  ('lr', LogisticRegression(max_iter=1000000))
@@ -214,16 +217,20 @@ Best parameters with search grid Vect and Lr:
 Best cross-validation score with search grid Vect and Lr:
  0.9430958578634414
 '''
+
 print("\n--- Applying Bag-of-Words ---\n")
 vect = CountVectorizer(max_df=0.75)
 X_train = vect.fit_transform(X_train.text)
+X_test = vect.transform((X_test.text))
+
 print("\n--- Computing Best Model ---\n")
 lr_best = LogisticRegression(max_iter=1000000, C=0.01, n_jobs=-1, random_state=42)
 lr_best.fit(X_train, y_train)
 
-predictions_lr_best = cross_val_predict(lr_best, X_train, y_train, cv=10, n_jobs=-1)
-c_matr = confusion_matrix(y_train, predictions_lr_best)
-print("Confusion matrix:\n", c_matr)
+# predictions_lr_best = cross_val_predict(lr_best, X_train, y_train,
+#                                         cv=5, n_jobs=-1, method='decision_function')
+# c_matr = confusion_matrix(y_train, predictions_lr_best)
+# print("Confusion matrix:\n", c_matr)
 
 '''
 Confusion matrix:
@@ -231,5 +238,67 @@ Confusion matrix:
  [ 395 7212]]
 '''
 
-plot_confusion_matrix(lr_best, X_train, y_train)  # doctest: +SKIP
-plt.show()  # doctest: +SKIP
+# plot_confusion_matrix(lr_best, X_train, y_train)
+# plt.show()
+
+'''TESTING ON THE TEST DATA'''
+print("\n--- Testing Best Model ---\n")
+predictions_lr_best_test = lr_best.predict(X_test)
+# c_matr = confusion_matrix(y_test, predictions_lr_best_test)
+# print("Test best model confusion matrix:\n", c_matr)
+# plot_confusion_matrix(lr_best, X_test, y_test, values_format='.2f')
+'''
+Test best model confusion matrix:
+ [[2638  179]
+ [ 152 2386]]
+'''
+
+
+# classsif_rep_lr_best_test = classification_report(y_test, predictions_lr_best_test)
+# print("Classification report test best model:\n", classsif_rep_lr_best_test)
+'''
+               precision    recall  f1-score   support
+
+           0       0.95      0.94      0.94      2817
+           1       0.93      0.94      0.94      2538
+
+    accuracy                           0.94      5355
+   macro avg       0.94      0.94      0.94      5355
+weighted avg       0.94      0.94      0.94      5355
+'''
+
+auc = roc_auc_score(y_test, lr_best.decision_function(X_test))
+print("AUC of test best model:\n", auc)
+'''
+AUC of test best model:
+ 0.9803684737464449
+'''
+
+# precisions, recalls, thresholds = precision_recall_curve(y_test, predictions_lr_best_test)
+# def plot_precision_vs_recall(precisions, recalls):
+#     plt.plot(recalls, precisions, "b-", linewidth=2)
+#     plt.xlabel("Recall", fontsize=16)
+#     plt.ylabel("Precision", fontsize=16)
+#     plt.axis([0, 1, 0, 1])
+#     plt.grid(True)
+#
+# plt.figure(figsize=(8, 6))
+# plot_precision_vs_recall(precisions, recalls)
+#
+# fpr, tpr, threshs = roc_curve(y_test, predictions_lr_best_test)
+# def plot_roc_curve(fpr, tpr, label=None):
+#     plt.plot(fpr, tpr, linewidth=2, label=label)
+#     plt.plot([0, 1], [0, 1], 'k--') # dashed diagonal
+#     plt.axis([0, 1, 0, 1])
+#     plt.xlabel('False Positive Rate (Fall-Out)', fontsize=16)
+#     plt.ylabel('True Positive Rate (Recall)', fontsize=16)
+#     plt.grid(True)
+#
+# plt.figure(figsize=(8, 6))
+# plot_roc_curve(fpr, tpr)
+#
+# plt.show()
+
+
+
+
