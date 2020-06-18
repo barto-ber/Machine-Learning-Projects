@@ -63,18 +63,6 @@ data['tpep_pickup_datetime'] = pd.to_datetime(data['tpep_pickup_datetime'])
 data['tpep_dropoff_datetime'] = pd.to_datetime(data['tpep_dropoff_datetime'])
 data['trip_time'] = data['tpep_dropoff_datetime'] - data['tpep_pickup_datetime']
 
-'''Copying clean data to CSV'''
-# print("--- Copying clean data to CSV ---\n")
-# data.to_csv("yellow_tripdata_2019-1_V1.csv", index=False)
-
-'''Reading clean data'''
-# print("--- Reading clean data ---\n")
-# data = pd.read_csv('yellow_tripdata_2019-1_V1.csv')
-# print(data.head())
-# print(data.dtypes)
-# with ProgressBar():
-#     min_date = data['tpep_pickup_datetime'].min().compute()
-# print(min_date)
 
 '''Converting datetime to unix'''
 print("--- Converting datetime to unix time ---\n")
@@ -85,17 +73,32 @@ data_unix['tpep_dropoff_datetime'] = (data_unix['tpep_dropoff_datetime'] - pd.Ti
 print("--- Adding additional attribute combinations ---\n")
 data_unix['trip_time'] = data_unix['tpep_dropoff_datetime'] - data_unix['tpep_pickup_datetime']
 data_unix['distance/time'] = data_unix['trip_distance'] / data_unix['trip_time'] # lin correlations close zero
-# print("Unix time data head:\n", data_unix.head())
+print("Unix time data head:\n", data_unix.head())
+
+'''Copying clean data to CSV'''
+# print("--- Copying clean data to CSV ---\n")
+# data_unix.to_csv("yellow_tripdata_2019-1_V2.csv", index=False)
+
+'''Reading clean data'''
+# print("--- Reading clean data ---\n")
+# data = pd.read_csv('yellow_tripdata_2019-1_V1.csv')
+# print(data.head())
+# print(data.dtypes)
+# with ProgressBar():
+#     min_date = data['tpep_pickup_datetime'].min().compute()
+# print(min_date)
 
 '''Creating train and test set'''
 print("--- Creating train and test set ---\n")
 train_set, test_set = train_test_split(data_unix, test_size=0.3, random_state=42)
+
 
 '''Looking for correlations'''
 # print("--- Checking for linear pearsons correlations ---\n")
 # corr_matrix = train_set.corr()
 # check_fare_amount = corr_matrix['fare_amount'].sort_values(ascending=False)
 # print("\nCheck fare amount correlations:\n", check_fare_amount)
+
 
 '''Throwing out last irrelevant features'''
 print("--- Throwing out irrelevant features ---\n")
@@ -120,6 +123,8 @@ data_unix.dropna()
 # print("Numpy check if any element is Na (not available)?:\n", np.isnan(data_unix).all())
 
 # print("Are there any NaN???:\n", data_unix.isna().sum())
+
+
 
 '''Split data'''
 print("--- Splitting data ---\n")
