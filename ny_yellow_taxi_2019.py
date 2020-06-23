@@ -104,6 +104,7 @@ train_set, test_set = train_test_split(data_unix, test_size=0.3, random_state=42
 print("--- Throwing out irrelevant features ---\n")
 irrelevant_features = ['RatecodeID', 'payment_type']
 data_unix.drop(irrelevant_features, inplace=True, axis=1)
+print(data_unix.head())
 
 '''Last check for infinity and NaN and setting inf as Na'''
 # missing_values_all = data_unix.isnull().sum().sum()
