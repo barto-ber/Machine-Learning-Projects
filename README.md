@@ -13,7 +13,7 @@ Thre is also a project for NPL, which worked quite nice:
 I wanted on the beginning after studiying with "Hands on ML" to try myself on a different housing dataset as shown in that book. So I found a german one dataset. It was not really similar, mostly just ads from biggest german apartment search website. Neverthless it was quite interesting task as well.
 - housing_de.py
 
-There are also the classic datasets like:
+During my learning I also worked with the classic datasets (which are not here) like:
 - cancer dataset
 - iris
 - mnist
