@@ -5,8 +5,13 @@ I liked a lot the weather of Berlin dataset, cause it include like 144 years of 
 - b_ML_weather_in_berlin_ger_1876-2019.ipynb
 
 Another one nice is the yellow taxi data set. Due to memory issues on my laptop I had to turn to a smaller set as for one month, but still it includes millions of rows. So here I learned a bit of Dask to accelerate the work. My task was also a regression model to find out the prices for taxi rides.
+- ny_yellow_taxi_2019.py
+
+Thre is also a project for NPL, which worked quite nice:
+- fake_news.py
 
 I wanted on the beginning after studiying with "Hands on ML" to try myself on a different housing dataset as shown in that book. So I found a german one dataset. It was not really similar, mostly just ads from biggest german apartment search website. Neverthless it was quite interesting task as well.
+- housing_de.py
 
 There are also the classic datasets like:
 - cancer dataset
