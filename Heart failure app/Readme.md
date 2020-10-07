@@ -1,2 +1,5 @@
-Hey here is the link to my deployed Machine Learning Model for prediction of hearts ffailure:
+Hey guys!
+
+Here is the link to my deployed Machine Learning Project for prediction of heart failures:
+
 https://heart-failure-app.herokuapp.com
