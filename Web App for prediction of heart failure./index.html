@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Home page</title>
+    <style>
+    img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;}
+    body {
+    background-color: rgb(138, 187, 255);}
+    </style>
+  </head>
+  <body>
+    <h1 style="text-align: center;"><span style="color: #ff0000;">Heart Failure Prediction</span></h1>
+    <p style="color: #5e9ca0; text-align: center;"><span style="color: #000000;">If you like to anticipate if you are or was suffering a heart failure please fill out this form:</span></p>
+<!--    <p><img src="heart.jpg" alt="lalalala" width="660" height="283" class="center" /></p>-->
+
+
+    <div style="margin: 0 auto;" align="center"><form action="{% url 'result' %}">{% csrf_token %}
+    <p style="text-align: center;">Age:</p>
+    <input name="age" size="50" type="text" placeholder="Your age eg. 45" /> <br />
+    <p style="text-align: center;">Do you have anaemia?:</p>
+    <input name="anaemia" size="50" type="text" placeholder="Enter 0 for NO or 1 for YES" /> <br />
+    <p style="text-align: center;">Creatinine phosphokinase (IU/L):</p>
+    <input name="creatinine_phosphokinase" size="50" type="text" placeholder="Eg. 20 or 200" /> <br />
+    <p style="text-align: center;">Do you have diabetes:</p>
+    <input name="diabetes" size="50" type="text" placeholder="Enter 0 for NO or 1 for YES" /> <br />
+    <p style="text-align: center;">Ejection fraction:</p>
+    <input name="ejection_fraction" size="50" type="text" placeholder="Eg. 50 or 75" /> <br />
+    <p style="text-align: center;">Do you have high blood pressure:</p>
+    <input name="high_blood_pressure" size="50" type="text" placeholder="Enter 0 for NO or 1 for YES" /> <br />
+    <p style="text-align: center;">Platelets (number per microliter of blood):</p>
+    <input name="platelets" size="50" type="text" placeholder="Eg. 200000 or 500000" /> <br />
+    <p style="text-align: center;">Serum creatinine (milligrams per deciliter):</p>
+    <input name="serum_creatinine" size="50" type="text" placeholder="Eg. 0.84 or 1.21" /> <br />
+    <p style="text-align: center;">Serum sodium (mmol/L):</p>
+    <input name="serum_sodium" size="50" type="text" placeholder="Eg. 135 or 147" /> <br />
+    <p style="text-align: center;">Sex:</p>
+    <input name="sex" size="50" type="text" placeholder="Enter 0 for FEMALE or 1 for MALE" /> <br />
+    <p style="text-align: center;">Are you smoking?:</p>
+    <input name="smoking" size="50" type="text" placeholder="Enter 0 for NO or 1 for YES" /> <br />
+    <p>&nbsp;</p>
+    <input type="submit" value="Get Predictions" /></form></div>
+    <p>&nbsp;</p>
+    <p style="text-align: center;"><span style="color: #ff0000;">Made by Bart</p>
+    <p style="text-align: center;"><a title="The projects source code:" href="https://github.com/barto-ber/ML_bart/tree/master/Heart%20failure%20app" target="_blank" rel="noopener">https://github.com/barto-ber/ML_bart/tree/master/Heart%20failure%20app</a></p>
+    <p style="text-align: center;"><em>* Please remember this is not a doctor advice allthough the results base on medical data.</em></p>
+
+  </body>
+</html>
