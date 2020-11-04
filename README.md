@@ -1,6 +1,9 @@
 # ML_bart
 here are my own Machine Learning projects during my study time. You will find here the classic projects as well as some more interesting.
 
+## Web App for classification of fake and true news.
+This is my second end-to-end Machine Learning project using django and deployment on heroku with AWS S3. There is a part of data manipulation, cleaning and exploratory analysis as well. Data is from kaggle.
+
 ## Web App for prediction of heart failure.
 This is my first end-to-end Machine Learning project using django and deployment on heroku. There is a part of data manipulation, cleaning and exploratory analysis as well. Data is well known from kaggle.
 
