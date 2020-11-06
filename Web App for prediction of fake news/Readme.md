@@ -6,5 +6,5 @@ There is a part of data manipulation, cleaning and exploratory analysis as well.
 
 **Web App: https://best-fake-news-app.herokuapp.com**
 
-
+<img src="./fake_land_2.png">
 
