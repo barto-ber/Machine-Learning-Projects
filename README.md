@@ -2,7 +2,8 @@
 here are my own Machine Learning projects during my study time. You will find here the classic projects as well as some more interesting.
 
 ## Web App for classification of fake and true news.
-<img src="./Web App for prediction of fake news/fake_land.png" width="98" height="58" style="float:left"> <img src="./Web App for prediction of fake news/fake_land_2.png" width="98" height="58" style="float:right">
+<img src="./Web App for prediction of fake news/fake_land.png" width="127" height="75" style="float:left"> <img src="./Web App for prediction of fake news/fake_land_2.png" width="127" height="75" style="float:right">
+
 This is my second end-to-end Machine Learning project using django and deployment on heroku with AWS S3. There is a part of data manipulation, cleaning and exploratory analysis as well. Data is from kaggle.
 
 ## Web App for prediction of heart failure.
