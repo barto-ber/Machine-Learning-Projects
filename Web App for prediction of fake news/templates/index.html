@@ -1,0 +1,148 @@
+{% load static %}<!DOCTYPE html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Landing Page - Start Bootstrap Theme</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+<!--    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">-->
+<!--    <link href="vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">-->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic"
+          rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this template -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-landing-page/5.0.7/css/landing-page.min.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-light bg-light static-top" id="top-navigation">
+      <div class="container">
+        <a class="navbar-brand" href="#">FAKE NEWS CHECK</a>
+      </div>
+    </nav>
+
+    <!-- Masthead -->
+    <header class="masthead text-white text-center" id="top-header" style="background-image: url({% static 'img/news_1.jpg' %});">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row">
+          <div class="col-xl-9 mx-auto">
+            <h3 class="mb-5" style="color: rgb(255, 255, 255); font-size: 59px; font-family: Georgia, serif;">CHECK YOUR NEWS&nbsp;<div>is it true or is it fake</div></h3>
+          </div>
+          <div class="col-md-12 col-lg-8 col-xl-7 mx-auto">
+            <form action="{% url 'result' %}">{% csrf_token %}
+              <div class="form-row mx-auto">
+                <div class="col-15 col-md-9 mb-2 mb-md-0 mx-auto">
+                  <input name="title" type="text" class="form-control form-control-lg" placeholder="Enter the title of the news..." style="font-size: 14.8px;">
+                  <input name="author" type="text" class="form-control form-control-lg" placeholder="Enter the name of the author..." style="font-size: 14.8px;">
+                  <textarea name="text" class="form-control form-control-lg" placeholder="Enter text of your news..." rows="10" style="font-size: 14.8px;"></textarea>
+                  <button type="submit" class="btn btn-block btn-lg btn-primary">Check your news!</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Image Showcases -->
+    <section class="showcase" id="images-showcase">
+      <div class="container-fluid p-0">
+        <div class="row no-gutters">
+          <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url({% static 'img/news_3.jpg' %});"></div>
+          <div class="col-lg-6 order-lg-1 my-auto showcase-text">
+            <h2>Keep your mind free</h2>
+            <p class="lead mb-0">If you want to keep clear view on global issues check first what you want to read, keep yourself save and free of bad guys influence!</p>
+          </div>
+        </div>
+        <div class="row no-gutters">
+          <div class="col-lg-6 text-white showcase-img" style="background-image: url({% static 'img/machinelearning_1.jpg' %});"></div>
+          <div class="col-lg-6 my-auto showcase-text">
+            <h2>Based on machine learning algorithms</h2>
+            <p class="lead mb-0">Our technology will help you to decide what is good and what is wrong. Our algorithms are based on tousands of news articles!</p>
+          </div>
+        </div>
+        <div class="row no-gutters">
+          <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url({% static 'img/easy_2.jpg' %});"></div>
+          <div class="col-lg-6 order-lg-1 my-auto showcase-text">
+            <h2>Easy to Use</h2>
+            <p class="lead mb-0">Just copy the title, author and the text of your article and press the button! Thats all! In seconds you will know the answer.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials text-center bg-light" id="testmionials">
+      <div class="container">
+        <h2 class="mb-5">What people are saying...</h2>
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+              <img class="img-fluid rounded-circle mb-3" src="{% static 'img/s1.webp' %}" alt="">
+              <h5>Silke E.</h5>
+              <p class="font-weight-light mb-0">"This is fantastic! Thanks so much guys! I don't lknow why you are not famous, you should!"</p>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+              <img class="img-fluid rounded-circle mb-3" src="{% static 'img/s2.webp' %}" alt="">
+              <h5>Vladi P.</h5>
+              <p class="font-weight-light mb-0">"This App is amazing. I've been using it to check lots of news from my enemies."</p>
+            </div>
+          </div>
+          <div class="col-lg-4" data-vvveb-disabled="">
+            <div class="testimonial-item mx-auto mb-5 mb-lg-0">
+              <img class="img-fluid rounded-circle mb-3" src="{% static 'img/s3.webp' %}" alt="">
+              <h5>Silvio B.</h5>
+              <p class="font-weight-light mb-0">"Thanks so much for making it working! I loved to check all the fake news about my parties!"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer bg-light" id="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 h-100 text-center text-lg-left mx-auto">
+            <ul class="list-inline mb-2" style="text-align: center;">
+              <li class="list-inline-item">
+                <a href="https://github.com/barto-ber/Machine-Learning-Projects/tree/master/Web%20App%20for%20prediction%20of%20fake%20news">About</a>
+              </li>
+              <li class="list-inline-item">⋅</li>
+              <li class="list-inline-item">
+                <a href="https://github.com/barto-ber">Contact</a>
+              </li>
+              <li class="list-inline-item">⋅</li>
+              <li class="list-inline-item">
+                <a href="https://github.com/barto-ber">Terms of Use</a>
+              </li>
+              <li class="list-inline-item">⋅</li>
+              <li class="list-inline-item">
+                <a href="https://github.com/barto-ber">Privacy Policy</a>
+              </li>
+            </ul>
+            <p class="text-muted small mb-4 mb-lg-0 text-center">© Fake News App 2020. All Rights Reserved.</p>
+          </div>
+
+        </div>
+      </div>
+    </footer>
+
+
+</body>
+</html>
