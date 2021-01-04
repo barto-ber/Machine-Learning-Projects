@@ -1,4 +1,4 @@
-# ML_bart
+# my MACHINE LEARNING
 here are my own Machine Learning projects during my study time. You will find here the classic projects as well as some more interesting.
 
 ## Web App for classification of fake and true news.
