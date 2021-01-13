@@ -9,7 +9,7 @@ This is my second end-to-end Machine Learning project using django and deploymen
 ## Web App for prediction of heart failure.
 <img src="./Web App for prediction of heart failure./heart_land.png" width="127" height="75" style="float:left">
 
-This is my first end-to-end Machine Learning project using django and deployment on heroku. There is a part of data manipulation, cleaning and exploratory analysis as well. Data is well known from kaggle.
+This is my first end-to-end Machine Learning project using django and deployment on heroku. There is a part of data manipulation, cleaning and exploratory analysis as well. Data is well known from kaggle. [link](https://github.com/barto-ber/Machine-Learning-Projects/tree/master/Web%20App%20for%20prediction%20of%20heart%20failure.)
 
 ## Prediction of weather in Berlin
 I liked a lot the weather of Berlin dataset, cause it include like 144 years of daily measurement; of course the very old measurements are just temperatures but still i found it quite interesting for practicing Pandas and after using it for regression model.
